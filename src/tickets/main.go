@@ -1,49 +1,48 @@
 package main
 
 import (
-	"flag"
-	"http-rest-api/internal/app/apiserver"
-	"http-rest-api/store"
-	"log"
+	"tickets/controllers"
+	"tickets/objects"
+	"tickets/utils"
 
-	"github.com/BurntSushi/toml"
+	"fmt"
+	"math/rand"
+	"time"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-var (
-	configPath string
-	repo       store.TicketRepository
-)
+func initDBConnection(cnf utils.DBConfiguration) *gorm.DB {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		cnf.Host, cnf.User, cnf.Password, cnf.Name, cnf.Port)
+	db, e := gorm.Open(cnf.Type, dsn)
 
-func init() {
-	log.Default().Println(flag.Args())
-	// if len(os.Args) == 2 {
+	if e != nil {
+		utils.Logger.Print("DB Connection failed")
+		utils.Logger.Print(e)
+		panic("DB Connection failed")
+	} else {
+		utils.Logger.Print("DB Connection Established")
+	}
 
-	flag.StringVar(&configPath, "config", "configs/apiserver.toml", "path to config file")
-	// }
-	log.Default().Println("Config path: " + configPath)
+	db.SingularTable(true)
+	db.AutoMigrate(&objects.Ticket{})
+	return db
 }
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 
-	flag.Parse()
-	configFlag := flag.Lookup("config")
-	config := apiserver.NewConfig()
-	log.Default().Println(configFlag)
-	if configFlag != nil {
-		_, err := toml.DecodeFile(configPath, config)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+	utils.InitConfig()
+	utils.InitLogger()
+	defer utils.CloseLogger()
 
-	st := store.New(config.Store)
-	repo = *st.Ticket()
+	db := initDBConnection(utils.Config.DB)
+	defer db.Close()
+	r := controllers.InitRouter(db)
 
-	s := apiserver.New(config)
-	log.Default().Println(configFlag)
-
-	if err := s.Start(); err != nil {
-		log.Fatal(err)
-	}
+	fmt.Printf("App started: http://localhost:%d\n", utils.Config.Port)
+	controllers.RunRouter(r, utils.Config.Port)
 
 }
