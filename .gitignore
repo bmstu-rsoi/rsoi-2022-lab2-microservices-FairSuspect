@@ -194,9 +194,7 @@ build-iPhoneSimulator/
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
+
 
 # Compiled Static libraries
 *.lai
@@ -355,8 +353,7 @@ local.properties
 *.idb
 *.pdb
 
-# Kernel Module Compile Results
-*.mod*
+
 *.cmd
 .tmp_versions/
 modules.order
