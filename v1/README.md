@@ -50,7 +50,7 @@ CREATE TABLE airport
 {
   "balance": 1500,
   "status": "GOLD",
-  "history": [
+  "`history`": [
     {
       "date": "2021-10-08T19:59:19Z",
       "ticketUid": "049161bb-badd-4fa8-9d90-87c9a82b0668",

@@ -1,5 +1,0 @@
-bind_addr = ":8070"
-log_level = "debug"
-
-[store]
-database_url = "host=127.0.0.1:5432 dbname=Tickets user=program password=test" 

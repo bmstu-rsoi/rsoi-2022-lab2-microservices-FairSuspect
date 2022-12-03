@@ -17,7 +17,19 @@ jobs:
 
       - uses: docker/setup-buildx-action@v2
 
-      # TODO build and run unit tests
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.x
+
+      - name: Build gateway
+        run: cd src/gateway && go get -d ./... && go build ./...
+      - name: Build flights
+        run: cd src/flights && go get -d ./... && go build ./...
+      - name: Build tickets
+        run: cd src/tickets && go get -d ./... && go build ./...
+      - name: Build privileges
+        run: cd src/privileges && go get -d ./... && go build ./...
 
       - name: Build images
         timeout-minutes: 10
@@ -29,14 +41,13 @@ jobs:
           docker compose up -d
           ./scripts/wait-script.sh
         env:
-          - WAIT_PORTS=8080,8070,8060,8050
+          WAIT_PORTS: 8080,8070,8060,8050
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
         with:
-          # TODO insert your variant
-          collection: <variant>/postman/collection.json
-          environment: <variant>/postman/environment.json
+          collection: v1/postman/collection.json
+          environment: v1/postman/environment.json
           delayRequest: 100
           reporters: '[ "cli" ]'
 
