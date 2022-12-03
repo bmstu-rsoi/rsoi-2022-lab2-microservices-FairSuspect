@@ -21,7 +21,6 @@ var (
 	Config Configuration
 )
 
-// TODO: returnable error
 func InitConfig() {
 	Config = Configuration{
 		DBConfiguration{

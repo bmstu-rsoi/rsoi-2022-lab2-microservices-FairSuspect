@@ -12,7 +12,6 @@ var (
 	Config Configuration
 )
 
-// TODO: returnable error
 func InitConfig() {
 	Config = Configuration{
 		"logs/server.log",
